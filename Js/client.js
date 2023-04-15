@@ -73,12 +73,35 @@ function renderSingleVidReq(vidInfo, isPrepend = false) {
 
 }
 
+function loadAllVidReqs(sortBy = 'newFirst') {
+  fetch(`http://localhost:7777/video-request?sortBy=${sortBy}`)
+    .then((blob) => blob.json())
+    .then(data => {
+      listOfVidsElm.innerHTML = '';
+      data.forEach((vidInfo) => {
+        renderSingleVidReq(vidInfo);
+      });
+    });
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const formVidReqElm = document.getElementById('formVideoRequest');
+  const sortByElms = document.querySelectorAll('[id*=sort_by_]');
 
-  fetch('http://localhost:7777/video-request').then((blob) => blob.json()).then(data => {
-    data.forEach((vidInfo) => {
-      renderSingleVidReq(vidInfo);
+  loadAllVidReqs();
+
+  sortByElms.forEach((elem) => {
+    elem.addEventListener('click', function (e) {
+      e.preventDefault();
+      const sortBy = this.querySelector('input').value;
+      loadAllVidReqs(sortBy);
+      this.classList.add('active');
+      if (sortBy == 'topVotedFirst') {
+        document.getElementById('sort_by_new').classList.remove('active');
+      } else {
+        document.getElementById('sort_by_top').classList.remove('active');
+      }
     });
   });
 
@@ -91,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then((bold) => bold.json())
       .then((data) => {
-        renderSingleVidReq(data , true);
+        renderSingleVidReq(data, true);
       });
   });
 });
