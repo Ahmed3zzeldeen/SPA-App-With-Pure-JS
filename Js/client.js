@@ -1,6 +1,7 @@
 
+const listOfVidsElm = document.getElementById('listOfRequests');
 
-function getSingleVidReq(vidInfo) {
+function renderSingleVidReq(vidInfo, isPrepend = false) {
   const vidReqContainerElm = document.createElement('div');
   vidReqContainerElm.innerHTML = `
   <div class="card mb-3">
@@ -35,46 +36,49 @@ function getSingleVidReq(vidInfo) {
     </div>
   </div>
   `;
-  return vidReqContainerElm;
+
+  if (isPrepend) {
+    listOfVidsElm.prepend(vidReqContainerElm);
+  } else {
+    listOfVidsElm.appendChild(vidReqContainerElm);
+  }
+
+  const voteUpsElm = document.getElementById(`votes_ups_${vidInfo._id}`);
+  const voteDownsElm = document.getElementById(`votes_downs_${vidInfo._id}`);
+  const scoreVoteElm = document.getElementById(`score_vote_${vidInfo._id}`)
+
+  voteUpsElm.addEventListener('click', (e) => {
+    fetch('http://localhost:7777/video-request/vote', {
+      method: 'PUT',
+      headers: { 'content-Type': 'application/json' },
+      body: JSON.stringify({ id: vidInfo._id, vote_type: 'ups' }),
+    })
+      .then((blob) => blob.json())
+      .then((data) => {
+        scoreVoteElm.innerHTML = data.ups - data.downs;
+      });
+  });
+
+  voteDownsElm.addEventListener('click', (e) => {
+    fetch('http://localhost:7777/video-request/vote', {
+      method: 'PUT',
+      headers: { 'content-Type': 'application/json' },
+      body: JSON.stringify({ id: vidInfo._id, vote_type: 'downs' }),
+    })
+      .then((blob) => blob.json())
+      .then((data) => {
+        scoreVoteElm.innerHTML = data.ups - data.downs;
+      });
+  });
+
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   const formVidReqElm = document.getElementById('formVideoRequest');
-  const listOfVidsElm = document.getElementById('listOfRequests');
-
 
   fetch('http://localhost:7777/video-request').then((blob) => blob.json()).then(data => {
     data.forEach((vidInfo) => {
-      listOfVidsElm.appendChild(getSingleVidReq(vidInfo));
-
-      const voteUpsElm = document.getElementById(`votes_ups_${vidInfo._id}`);
-      const voteDownsElm = document.getElementById(`votes_downs_${vidInfo._id}`);
-      const scoreVoteElm = document.getElementById(`score_vote_${vidInfo._id}`)
-
-      voteUpsElm.addEventListener('click', (e) => {
-        fetch('http://localhost:7777/video-request/vote', {
-          method: 'PUT',
-          headers: { 'content-Type': 'application/json' },
-          body: JSON.stringify({ id: vidInfo._id, vote_type: 'ups' }),
-        })
-          .then((blob) => blob.json())
-          .then((data) => {
-            scoreVoteElm.innerHTML = data.ups - data.downs;
-          });
-      });
-
-      voteDownsElm.addEventListener('click', (e) => {
-        fetch('http://localhost:7777/video-request/vote', {
-          method: 'PUT',
-          headers: { 'content-Type': 'application/json' },
-          body: JSON.stringify({ id: vidInfo._id, vote_type: 'downs' }),
-        })
-          .then((blob) => blob.json())
-          .then((data) => {
-            scoreVoteElm.innerHTML = data.ups - data.downs;
-          });
-      });
-
+      renderSingleVidReq(vidInfo);
     });
   });
 
@@ -87,8 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then((bold) => bold.json())
       .then((data) => {
-        console.log(data);
-        listOfVidsElm.prepend(getSingleVidReq(data));
+        renderSingleVidReq(data , true);
       });
   });
 });
