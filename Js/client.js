@@ -1,5 +1,6 @@
 
 const listOfVidsElm = document.getElementById('listOfRequests');
+let sortBy = 'newFirst';
 
 function renderSingleVidReq(vidInfo, isPrepend = false) {
   const vidReqContainerElm = document.createElement('div');
@@ -70,7 +71,7 @@ function renderSingleVidReq(vidInfo, isPrepend = false) {
         scoreVoteElm.innerHTML = data.ups - data.downs;
       });
   });
-
+  sortByStatus(sortBy);
 }
 
 function loadAllVidReqs(sortBy = 'newFirst') {
@@ -90,18 +91,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const sortByElms = document.querySelectorAll('[id*=sort_by_]');
 
   loadAllVidReqs();
+  sortByStatus(sortBy);
 
   sortByElms.forEach((elem) => {
     elem.addEventListener('click', function (e) {
       e.preventDefault();
-      const sortBy = this.querySelector('input').value;
+      sortBy = this.querySelector('input').value;
       loadAllVidReqs(sortBy);
-      this.classList.add('active');
-      if (sortBy == 'topVotedFirst') {
-        document.getElementById('sort_by_new').classList.remove('active');
-      } else {
-        document.getElementById('sort_by_top').classList.remove('active');
-      }
+      sortByStatus(sortBy);
     });
   });
 
@@ -118,3 +115,14 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 });
+
+
+function sortByStatus(sortBy) {
+  if (sortBy == 'topVotedFirst') {
+    document.getElementById('sort_by_top').classList.add('active');
+    document.getElementById('sort_by_new').classList.remove('active');
+  } else {
+    document.getElementById('sort_by_new').classList.add('active');
+    document.getElementById('sort_by_top').classList.remove('active');
+  }
+}
