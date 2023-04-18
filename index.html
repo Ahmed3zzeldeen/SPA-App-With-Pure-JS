@@ -11,18 +11,22 @@
 <body>
   <div class="container my-5">
     <div class="formContainer my-5">
-      <form id="formVideoRequest">
+      <form id="formVideoRequest" novalidate>
         <div class="row">
           <div class="col-md">
             <div class="form-group">
               <label for="author_name">Your name *</label>
-              <input class="form-control" name="author_name" placeholder="Write your name here" />
+              <input class="form-control" name="author_name" type="text" placeholder="Write your name here" required />
+              <p class="invalid-feedback">This field is required</p>
             </div>
           </div>
           <div class="col-md">
             <div class="form-group">
               <label for="author_email">Your email *</label>
-              <input class="form-control" name="author_email" placeholder="Write your email here" />
+              <input class="form-control" name="author_email" type="email" placeholder="Write your email here"
+                required />
+              <p class="invalid-feedback">This field is required and you must enter valid E-mail <br> like :
+                example@site.com</p>
             </div>
           </div>
         </div>
@@ -31,7 +35,9 @@
           <div class="col-md">
             <div class="form-group">
               <label for="topic_title">Topic *</label>
-              <input class="form-control" name="topic_title" placeholder="Write your suggested topic here" />
+              <input class="form-control" name="topic_title" type="text"
+                placeholder="Write your suggested topic here" required minlength="10" maxlength="100" />
+              <p class="invalid-feedback">This field is required and should not exceed 100 characters</p>
             </div>
           </div>
           <div class="col-md">
@@ -49,8 +55,9 @@
           <div class="col-md">
             <div class="form-group">
               <label for="topic_details">More details *</label>
-              <textarea class="form-control" name="topic_details"
-                placeholder="Write your topic in more details here"></textarea>
+              <textarea class="form-control" name="topic_details" placeholder="Write your topic in more details here"
+                required></textarea>
+              <p class="invalid-feedback">This field is required</p>
             </div>
           </div>
           <div class="col-md">

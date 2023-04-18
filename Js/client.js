@@ -111,14 +111,17 @@ document.addEventListener('DOMContentLoaded', function () {
   formVidReqElm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(formVidReqElm);
-    fetch('http://localhost:7777/video-request', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((bold) => bold.json())
-      .then((data) => {
-        renderSingleVidReq(data, true);
-      });
+
+    if (checkValidity(formData)) {
+      fetch('http://localhost:7777/video-request', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((bold) => bold.json())
+        .then((data) => {
+          renderSingleVidReq(data, true);
+        });
+    }
   });
 });
 
@@ -141,4 +144,43 @@ function debounce(fn, time) {
     clearTimeout(timeout);
     timeout = setTimeout(() => fn.apply(this, args), time);
   }
+}
+
+function checkValidity(formData) {
+  const nameInputElm = document.querySelector('[name=author_name]');
+  const emailInputElm = document.querySelector('[name=author_email]');
+  const topicInputElm = document.querySelector('[name=topic_title]');
+  const topicDetailsInputElm = document.querySelector('[name=topic_details]');
+
+  const name = formData.get('author_name');
+  const email = formData.get('author_email');
+  const topic = formData.get('topic_title');
+  const topicDetails = formData.get('topic_details');
+
+  if (!name) {
+    nameInputElm.classList.add('is-invalid');
+  }
+  const emailPattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1, 3}\.[0-9]{1, 3}\.[0-9]{1, 3}\.[0-9]{1, 3}\])|(([a-zA-Z-\0-9]+\.)+[a-zA-Z]{2,}))$/
+  if (!email || !emailPattern.test(email)) {
+    emailInputElm.classList.add('is-invalid');
+  }
+  if (!topic || topic.length > 99) {
+    topicInputElm.classList.add('is-invalid');
+  }
+  if (!topicDetails) {
+    topicDetailsInputElm.classList.add('is-invalid');
+  }
+
+  const allInvalidElms = document.getElementById('formVideoRequest').querySelectorAll('.is-invalid');
+
+  if (allInvalidElms.length) {
+    allInvalidElms.forEach(elem => {
+      elem.addEventListener('input', function () {
+        this.classList.remove('is-invalid');
+      });
+    });
+    return false;
+  }
+
+  return true;
 }
