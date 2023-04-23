@@ -1,7 +1,15 @@
+import { checkValidityLogin } from './utils/checkValidityLogin.js'
+import { checkValidityReq } from './utils/checkValidityReq.js';
+import { debounce } from './utils/debounce.js';
 
 const listOfVidsElm = document.getElementById('listOfRequests');
-let sortBy = 'newFirst';
-let searchTerm = '';
+const state = {
+  sortBy: 'newFirst',
+  searchTerm: '',
+  userId: '',
+  isValidLogin: false,
+}
+
 
 function renderSingleVidReq(vidInfo, isPrepend = false) {
   const vidReqContainerElm = document.createElement('div');
@@ -72,7 +80,7 @@ function renderSingleVidReq(vidInfo, isPrepend = false) {
         scoreVoteElm.innerHTML = data.ups - data.downs;
       });
   });
-  sortByStatus(sortBy);
+  sortByStatus(state.sortBy);
 }
 
 function loadAllVidReqs(sortBy = 'newFirst', searchTerm = '') {
@@ -92,27 +100,53 @@ document.addEventListener('DOMContentLoaded', function () {
   const sortByElms = document.querySelectorAll('[id*=sort_by_]');
   const searchBoxElm = document.getElementById('search_box');
 
+  const formLoginElm = document.querySelector('.login-form');
+  const formLoginContElm = document.querySelector('.login-form-container');
+  const appContainerElm = document.querySelector('.app-container');
+
+
+
+  if (window.location.search) {
+    state.userId = new URLSearchParams(window.location.search).get('id');
+    formLoginElm.classList.add('d-none');
+    appContainerElm.classList.remove('d-none');
+  } else {
+    formLoginElm.addEventListener('submit', (e) => {
+      const loginFormData = new FormData(formLoginContElm);
+      state.isValidLogin = checkValidityLogin(loginFormData);
+      if (state.isValidLogin) {
+        state.userId = new URLSearchParams(window.location.search).get('id');
+        formLoginElm.classList.add('d-none');
+        appContainerElm.classList.remove('d-none');
+      } else {
+        e.preventDefault();
+      }
+    });
+  }
+
+
   loadAllVidReqs();
-  sortByStatus(sortBy);
+  sortByStatus(state.sortBy);
 
   sortByElms.forEach((elem) => {
     elem.addEventListener('click', function (e) {
       e.preventDefault();
-      sortBy = this.querySelector('input').value;
-      loadAllVidReqs(sortBy, searchTerm);
-      sortByStatus(sortBy);
+      state.sortBy = this.querySelector('input').value;
+      loadAllVidReqs(state.sortBy, state.searchTerm);
+      sortByStatus(state.sortBy);
     });
   });
   searchBoxElm.addEventListener('input', debounce((e) => {
-    searchTerm = e.target.value;
-    loadAllVidReqs(sortBy, searchTerm);
+    state.searchTerm = e.target.value;
+    loadAllVidReqs(state.sortBy, state.searchTerm);
   }, 300));
 
   formVidReqElm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(formVidReqElm);
-
-    if (checkValidity(formData)) {
+    formData.append('author_id', state.userId);
+    const isValidReq = checkValidityReq(formData);
+    if (isValidReq) {
       fetch('http://localhost:7777/video-request', {
         method: 'POST',
         body: formData,
@@ -136,51 +170,3 @@ function sortByStatus(sortBy) {
   }
 }
 
-
-function debounce(fn, time) {
-  let timeout;
-
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn.apply(this, args), time);
-  }
-}
-
-function checkValidity(formData) {
-  const nameInputElm = document.querySelector('[name=author_name]');
-  const emailInputElm = document.querySelector('[name=author_email]');
-  const topicInputElm = document.querySelector('[name=topic_title]');
-  const topicDetailsInputElm = document.querySelector('[name=topic_details]');
-
-  const name = formData.get('author_name');
-  const email = formData.get('author_email');
-  const topic = formData.get('topic_title');
-  const topicDetails = formData.get('topic_details');
-
-  if (!name) {
-    nameInputElm.classList.add('is-invalid');
-  }
-  const emailPattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1, 3}\.[0-9]{1, 3}\.[0-9]{1, 3}\.[0-9]{1, 3}\])|(([a-zA-Z-\0-9]+\.)+[a-zA-Z]{2,}))$/
-  if (!email || !emailPattern.test(email)) {
-    emailInputElm.classList.add('is-invalid');
-  }
-  if (!topic || topic.length > 99) {
-    topicInputElm.classList.add('is-invalid');
-  }
-  if (!topicDetails) {
-    topicDetailsInputElm.classList.add('is-invalid');
-  }
-
-  const allInvalidElms = document.getElementById('formVideoRequest').querySelectorAll('.is-invalid');
-
-  if (allInvalidElms.length) {
-    allInvalidElms.forEach(elem => {
-      elem.addEventListener('input', function () {
-        this.classList.remove('is-invalid');
-      });
-    });
-    return false;
-  }
-
-  return true;
-}

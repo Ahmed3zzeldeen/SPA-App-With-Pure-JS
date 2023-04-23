@@ -10,90 +10,94 @@
 
 <body>
   <div class="container my-5">
-    <div class="formContainer my-5">
-      <form id="formVideoRequest" novalidate>
-        <div class="row">
-          <div class="col-md">
-            <div class="form-group">
-              <label for="author_name">Your name *</label>
-              <input class="form-control" name="author_name" type="text" placeholder="Write your name here" required />
-              <p class="invalid-feedback">This field is required</p>
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="form-group">
-              <label for="author_email">Your email *</label>
-              <input class="form-control" name="author_email" type="email" placeholder="Write your email here"
-                required />
-              <p class="invalid-feedback">This field is required and you must enter valid E-mail <br> like :
-                example@site.com</p>
-            </div>
+    <div class="login-form col-md-6 offset-md-3 pt-4">
+      <form class="login-form-container" action="http://localhost:7777/users/login" method="POST" novalidate>
+        <div class="col-md">
+          <div class="form-group">
+            <label for="author_name">Your name *</label>
+            <input class="form-control" name="author_name" type="text" placeholder="Write your name here" required />
+            <p class="invalid-feedback">This field is required</p>
           </div>
         </div>
-        <hr />
-        <div class="row">
-          <div class="col-md">
-            <div class="form-group">
-              <label for="topic_title">Topic *</label>
-              <input class="form-control" name="topic_title" type="text"
-                placeholder="Write your suggested topic here" required minlength="10" maxlength="100" />
-              <p class="invalid-feedback">This field is required and should not exceed 100 characters</p>
-            </div>
+        <div class="col-md">
+          <div class="form-group">
+            <label for="author_email">Your email *</label>
+            <input class="form-control" name="author_email" type="email" placeholder="Write your email here" required />
+            <p class="invalid-feedback">This field is required and you must enter valid E-mail <br> like :
+              example@site.com</p>
           </div>
-          <div class="col-md">
-            <div class="form-group">
-              <label for="target_level">Target level</label>
-              <select class="form-control" name="target_level" placeholder="Write your name here">
-                <option value="beginner">Beginner</option>
-                <option value="medium">Medium</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <input class="btn btn-primary btn-block" type="submit" name="login" value="login"></input>
           </div>
         </div>
-        <div class="row">
-          <div class="col-md">
-            <div class="form-group">
-              <label for="topic_details">More details *</label>
-              <textarea class="form-control" name="topic_details" placeholder="Write your topic in more details here"
-                required></textarea>
-              <p class="invalid-feedback">This field is required</p>
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="form-group">
-              <label for="expected_result">Expected results</label>
-              <textarea class="form-control" name="expected_result"
-                placeholder="Write what do you expect after watching this video"></textarea>
-            </div>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-success mt-3">
-          Send video request
-        </button>
       </form>
     </div>
-    <hr />
-    <h1 class="mb-4">List of requested videos</h1>
-    <div class="d-flex justify-content-between mb-4">
-      <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-primary active" id="sort_by_new">
-          <input type="radio" name="option" value="newFirst"> New first
-        </label>
-        <label class="btn btn-primary" id="sort_by_top">
-          <input type="radio" name="option" value="topVotedFirst"> Top voted first
-        </label>
-      </div>
-      <div>
-        <input type="search" class="form-control" id="search_box" placeholder="Type your search words">
-      </div>
-    </div>
-    <div id="listOfRequests">
+    <div class="app-container d-none">
+      <div class="formContainer my-5">
+        <form id="formVideoRequest" novalidate>
+          <div class="row">
+            <div class="col-md">
+              <div class="form-group">
+                <label for="topic_title">Topic *</label>
+                <input class="form-control" name="topic_title" type="text" placeholder="Write your suggested topic here"
+                  required minlength="10" maxlength="100" />
+                <p class="invalid-feedback">This field is required and should not exceed 100 characters</p>
+              </div>
+            </div>
+            <div class="col-md">
+              <div class="form-group">
+                <label for="target_level">Target level</label>
+                <select class="form-control" name="target_level" placeholder="Write your name here">
+                  <option value="beginner">Beginner</option>
+                  <option value="medium">Medium</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md">
+              <div class="form-group">
+                <label for="topic_details">More details *</label>
+                <textarea class="form-control" name="topic_details" placeholder="Write your topic in more details here"
+                  required></textarea>
+                <p class="invalid-feedback">This field is required</p>
+              </div>
+            </div>
+            <div class="col-md">
+              <div class="form-group">
+                <label for="expected_result">Expected results</label>
+                <textarea class="form-control" name="expected_result"
+                  placeholder="Write what do you expect after watching this video"></textarea>
+              </div>
+            </div>
+          </div>
 
+          <button type="submit" class="btn btn-success mt-3">
+            Send video request
+          </button>
+        </form>
+      </div>
+      <hr />
+      <h1 class="mb-4">List of requested videos</h1>
+      <div class="d-flex justify-content-between mb-4">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+          <label class="btn btn-primary active" id="sort_by_new">
+            <input type="radio" name="option" value="newFirst"> New first
+          </label>
+          <label class="btn btn-primary" id="sort_by_top">
+            <input type="radio" name="option" value="topVotedFirst"> Top voted first
+          </label>
+        </div>
+        <div>
+          <input type="search" class="form-control" id="search_box" placeholder="Type your search words">
+        </div>
+      </div>
+      <div id="listOfRequests">
+      </div>
     </div>
   </div>
 </body>
-<script src="./Js/client.js"></script>
+<script type="module" src="./Js/client.js"></script>
 
 </html>
