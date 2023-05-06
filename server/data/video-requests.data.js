@@ -13,13 +13,16 @@ module.exports = {
     return newRequest.save();
   },
 
-  getAllVideoRequests: (top) => {
-    return VideoRequest.find({}).sort({ submit_date: '-1' }).limit(top);
+  getAllVideoRequests: (filterTerm) => {
+    const filter = (filterTerm == 'all') ? {} : { status: filterTerm };
+    return VideoRequest.find(filter).sort({ submit_date: '-1' });
   },
 
-  searchRequests: (topic) => {
+  searchRequests: (topic, filterTerm) => {
+    const filter = (filterTerm == 'all') ? {} : { status: filterTerm };
     return VideoRequest.find({
-      topic_title: { $regex: topic, $options: 'i' }
+      topic_title: { $regex: topic, $options: 'i' },
+      ...filter,
     }).sort({ addedAt: '-1' })
   },
 

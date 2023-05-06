@@ -7,6 +7,7 @@ const SUPER_USER_ID = '20020325';
 const state = {
   sortBy: 'newFirst',
   searchTerm: '',
+  filterTerm: 'all',
   userId: '',
   isValidLogin: false,
   isSuperUser: false,
@@ -56,7 +57,7 @@ function renderSingleVidReq(vidInfo, isPrepend = false) {
         <iframe
           width="240"
           height="135"
-          src="https://www.youtube.com/embed/${vidInfo.video_ref.link}"
+          src="https://www.youtube-nocookie.com/embed/${vidInfo.video_ref.link}"
           frameborder="0"
           allowfullscreen></iframe>
       </div>` : ""}
@@ -135,13 +136,13 @@ function renderSingleVidReq(vidInfo, isPrepend = false) {
   }
 
 
-  applyVoteStyle(vidInfo._id, vidInfo.votes);
+  applyVoteStyle(vidInfo._id, vidInfo.votes, vidInfo.status == 'done');
 
   const scoreVoteElm = document.getElementById(`score_vote_${vidInfo._id}`);
   const votesElms = document.querySelectorAll(`[id^=votes_][id$=_${vidInfo._id}]`);
 
   votesElms.forEach(elem => {
-    if (state.isSuperUser) {
+    if (state.isSuperUser || vidInfo.status == 'done') {
       return;
     }
     elem.addEventListener('click', function (e) {
@@ -156,7 +157,7 @@ function renderSingleVidReq(vidInfo, isPrepend = false) {
         .then((blob) => blob.json())
         .then((data) => {
           scoreVoteElm.innerHTML = data.ups.length - data.downs.length;
-          applyVoteStyle(id, data, vote_type);
+          applyVoteStyle(id, data, vidInfo.status == 'done', vote_type);
         });
     });
   });
@@ -173,8 +174,8 @@ function updateVideoStatus(id, status, resVideo = '') {
 }
 
 
-function loadAllVidReqs(sortBy = 'newFirst', searchTerm = '') {
-  fetch(`http://localhost:7777/video-request?sortBy=${sortBy}&searchTerm=${searchTerm}`)
+function loadAllVidReqs(sortBy = 'newFirst', searchTerm = '', filterTerm = 'all') {
+  fetch(`http://localhost:7777/video-request?sortBy=${sortBy}&searchTerm=${searchTerm}&filterTerm=${filterTerm}`)
     .then((blob) => blob.json())
     .then(data => {
       listOfVidsElm.innerHTML = '';
@@ -189,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const formVidReqElm = document.getElementById('formVideoRequest');
   const sortByElms = document.querySelectorAll('[id*=sort_by_]');
   const searchBoxElm = document.getElementById('search_box');
-
+  const filterByElms = document.querySelectorAll('[id^=filter_by_]');
   const formLoginElm = document.querySelector('.login-form');
   const formLoginContElm = document.querySelector('.login-form-container');
   const appContainerElm = document.querySelector('.app-container');
@@ -227,14 +228,25 @@ document.addEventListener('DOMContentLoaded', function () {
     elem.addEventListener('click', function (e) {
       e.preventDefault();
       state.sortBy = this.querySelector('input').value;
-      loadAllVidReqs(state.sortBy, state.searchTerm);
+      loadAllVidReqs(state.sortBy, state.searchTerm , state.filterTerm);
       sortByStatus(state.sortBy);
     });
   });
   searchBoxElm.addEventListener('input', debounce((e) => {
     state.searchTerm = e.target.value;
-    loadAllVidReqs(state.sortBy, state.searchTerm);
+    loadAllVidReqs(state.sortBy, state.searchTerm, state.filterTerm);
   }, 300));
+
+  filterByElms.forEach((elem) => {
+    elem.addEventListener('click', function (e) {
+      e.preventDefault();
+      const [, , filterTerm] = e.target.getAttribute('id').split('_');
+      state.filterTerm = filterTerm;
+      filterByElms.forEach((option) => option.classList.remove('active'));
+      this.classList.add('active');
+      loadAllVidReqs(state.sortBy, state.searchTerm, state.filterTerm);
+    })
+  });
 
   formVidReqElm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -266,11 +278,11 @@ function sortByStatus(sortBy) {
 }
 
 
-function applyVoteStyle(video_id, votes_list, vote_type) {
+function applyVoteStyle(video_id, votes_list, isDisabled, vote_type) {
   const voteUpsElm = document.getElementById(`votes_ups_${video_id}`);
   const voteDownsElm = document.getElementById(`votes_downs_${video_id}`);
 
-  if (state.isSuperUser) {
+  if (isDisabled) {
     voteUpsElm.style.opacity = '0.5';
     voteUpsElm.style.cursor = 'not-allowed';
     voteDownsElm.style.opacity = '0.5';

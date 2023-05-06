@@ -28,17 +28,16 @@ app.post('/video-request', upload.none(), async (req, res, next) => {
 });
 
 app.get('/video-request', async (req, res, next) => {
-  const { sortBy, searchTerm } = req.query;
+  const { sortBy, searchTerm, filterTerm } = req.query;
   let data;
   if (searchTerm) {
-    data = await VideoRequestData.searchRequests(searchTerm);
+    data = await VideoRequestData.searchRequests(searchTerm, filterTerm);
   } else {
-    data = await VideoRequestData.getAllVideoRequests();
+    data = await VideoRequestData.getAllVideoRequests(filterTerm);
   }
-
   if (sortBy == 'topVotedFirst') {
     data = data.sort((prev, next) => {
-      if (prev.votes.ups - prev.votes.downs > next.votes.ups - next.votes.downs) {
+      if ((prev.votes.ups.length - prev.votes.downs.length) > (next.votes.ups.length - next.votes.downs.length)) {
         return -1;
       } else {
         return 1;
@@ -65,8 +64,8 @@ app.post('/users/login', async (req, res, next) => {
 app.use(express.json());
 
 app.put('/video-request/vote', async (req, res, next) => {
-  const { id, vote_type , user_id } = req.body;
-  const response = await VideoRequestData.updateVoteForRequest(id, vote_type , user_id);
+  const { id, vote_type, user_id } = req.body;
+  const response = await VideoRequestData.updateVoteForRequest(id, vote_type, user_id);
   res.send(response.votes);
   next();
 });

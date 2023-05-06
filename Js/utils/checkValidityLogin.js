@@ -1,8 +1,6 @@
 export function checkValidityLogin(formData) {
   const nameInputElm = document.querySelector('[name=author_name]');
   const emailInputElm = document.querySelector('[name=author_email]');
-  console.log(nameInputElm);
-  console.log(emailInputElm);
 
   const name = formData.get('author_name');
   const email = formData.get('author_email');
